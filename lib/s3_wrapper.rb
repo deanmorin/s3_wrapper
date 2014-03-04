@@ -6,6 +6,7 @@ class S3Wrapper
 
   def initialize(bucket, options={})
     @bucket = AWS::S3.new(options).buckets[bucket]
+    #TODO throw exception if bucket does not exist
     @objects = @bucket.objects
   end
 
@@ -59,8 +60,35 @@ class S3Wrapper
     descriptions
   end
 
+  #TODO
+  def ls_if
+  end
+
   def mv(src_key, dst_key, dst_bucket=@bucket.name)
     @objects[src_key].move_to(dst_key, :bucket_name => dst_bucket)
+  end
+
+  #TODO
+  def mv_prefix(src_prefix, dst_bucket)
+    raise_if_dst_bucket_same_as_src(dst_bucket)
+  end
+
+  #TODO
+  def mv_substring()
+  end
+
+  #TODO
+  def mv_regexp()
+  end
+
+  #TODO
+  #def mv_if
+    #@objects.each do |obj|
+      #delete_if(&block)
+  #end
+
+  #TODO
+  def cp
   end
 
   def rm(key, options={})
@@ -91,7 +119,17 @@ class S3Wrapper
 
   private
 
+  def self.object_description(obj)
+    "#{obj.key}\t#{obj.last_modified.utc}\t#{obj.content_length / 1024 / 1024} MB"
+  end
+
   def get_object_description(obj)
     "#{obj.key}\t#{obj.last_modified.utc}\t#{obj.content_length / 1024 / 1024} MB"
+  end
+
+  def raise_if_dst_bucket_same_as_src(dst_bucket)
+    if dst_bucket == @bucket.name
+      raise ArgumentError.new('dst and src bucket are the same')
+    end
   end
 end
